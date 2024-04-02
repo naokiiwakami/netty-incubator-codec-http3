@@ -32,6 +32,7 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.DuplexChannel;
 import io.netty.channel.socket.nio.NioDatagramChannel;
 import io.netty.handler.codec.EncoderException;
+import io.netty.handler.codec.UnsupportedMessageTypeException;
 import io.netty.handler.codec.http.DefaultFullHttpRequest;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.DefaultHttpContent;
@@ -79,12 +80,14 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.not;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -1057,16 +1060,28 @@ data.release();
             stream.writeAndFlush(request);
 
             HttpResponse respHeaders = (HttpResponse) received.poll(20, TimeUnit.SECONDS);
+            assertThat(respHeaders, notNullValue());
             assertThat(respHeaders.status(), is(HttpResponseStatus.OK));
             assertThat(respHeaders, not(instanceOf(LastHttpContent.class)));
             HttpContent respBody = (HttpContent) received.poll(20, TimeUnit.SECONDS);
+            assertThat(respBody, notNullValue());
             assertThat(respBody.content().toString(CharsetUtil.UTF_8), is("foo"));
             respBody.release();
 
             LastHttpContent last = (LastHttpContent) received.poll(20, TimeUnit.SECONDS);
+            assertThat(last, notNullValue());
             last.release();
         } finally {
             group.shutdownGracefully();
         }
+    }
+
+    @Test
+    public void testUnsupportedIncludeSomeDetails() {
+        EmbeddedQuicStreamChannel ch = new EmbeddedQuicStreamChannel(new Http3FrameToHttpObjectCodec(false));
+        UnsupportedMessageTypeException ex = assertThrows(
+                UnsupportedMessageTypeException.class, () -> ch.writeOutbound("unsupported"));
+        assertNotNull(ex.getMessage());
+        assertFalse(ch.finish());
     }
 }

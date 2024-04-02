@@ -17,6 +17,7 @@ package io.netty.incubator.codec.http3;
 
 import io.netty.handler.codec.Headers;
 import io.netty.util.AsciiString;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Iterator;
 import java.util.Map.Entry;
@@ -109,6 +110,7 @@ public interface Http3Headers extends Headers<CharSequence, CharSequence, Http3H
          * @param name  the header name.
          * @return corresponding {@link PseudoHeaderName} if any, {@code null} otherwise.
          */
+        @Nullable
         public static PseudoHeaderName getPseudoHeader(CharSequence name) {
             return PSEUDO_HEADERS.get(name);
         }
@@ -187,6 +189,7 @@ public interface Http3Headers extends Headers<CharSequence, CharSequence, Http3H
      *
      * @return the value of the header.
      */
+    @Nullable
     CharSequence method();
 
     /**
@@ -194,6 +197,7 @@ public interface Http3Headers extends Headers<CharSequence, CharSequence, Http3H
      *
      * @return the value of the header.
      */
+    @Nullable
     CharSequence scheme();
 
     /**
@@ -201,6 +205,7 @@ public interface Http3Headers extends Headers<CharSequence, CharSequence, Http3H
      *
      * @return the value of the header.
      */
+    @Nullable
     CharSequence authority();
 
     /**
@@ -208,6 +213,7 @@ public interface Http3Headers extends Headers<CharSequence, CharSequence, Http3H
      *
      * @return the value of the header.
      */
+    @Nullable
     CharSequence path();
 
     /**
@@ -215,6 +221,7 @@ public interface Http3Headers extends Headers<CharSequence, CharSequence, Http3H
      *
      * @return the value of the header.
      */
+    @Nullable
     CharSequence status();
 
     /**
